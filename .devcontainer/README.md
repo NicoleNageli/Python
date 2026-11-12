@@ -7,6 +7,7 @@ This is **Devcontainer** configuration to provide a consistent development envir
 - [x] Pre-configured **Python environment**
 - [x] Automatic installation of **pre-commit hooks**
 - [x] **Ruff** linter ready to check your code
+- [x] **uv** with project dependencies preinstalled (free-threaded 3.15t)
 - [x] **Oh My Zsh** with plugins:
 - `zsh-autosuggestions`
 - `zsh-syntax-highlighting`

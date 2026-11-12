@@ -4,6 +4,12 @@ echo "Begin post-installation steps..."
 
 set -e
 
+# On Windows/macOS Docker Desktop the bind-mounted workspace is owned by a
+# different user than `vscode`, so git refuses it ("dubious ownership") and
+# `pre-commit install` fails. postCreateCommand runs from the workspace folder.
+echo "Marking the workspace as a safe git directory..."
+git config --global --add safe.directory "$PWD"
+
 echo "Installing pre-commit hooks..."
 pre-commit install
 
