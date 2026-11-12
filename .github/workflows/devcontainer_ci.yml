@@ -1,7 +1,12 @@
 name: Test DevContainer Build
 
+# Build .devcontainer/Dockerfile and run its lifecycle scripts, but only when
+# something that feeds the image changes. The Dockerfile copies pyproject.toml,
+# uv.lock and .python-version, so those files are included in the paths filter too.
 on:
   push:
+    branches:
+      - master
     paths:
       - ".devcontainer/**"
       - ".github/workflows/devcontainer_ci.yml"
@@ -23,7 +28,21 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      # devcontainers/ci builds the image from devcontainer.json (and so from
+      # the Dockerfile), runs postCreateCommand (and therefore post_install), then runs
+      # runCmd inside the container as remoteUser. A failing check fails the job.
       - uses: devcontainers/ci@v0.3
         with:
           push: never
-          runCmd: "uv --version"
+          runCmd: |
+            set -e
+            python3 --version
+            uv --version
+            ruff --version
+            pre-commit --version
+            test -f .git/hooks/pre-commit
+            plugins="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins"
+            test -d "$plugins/zsh-autosuggestions"
+            test -d "$plugins/zsh-syntax-highlighting"
+            grep -q '^plugins=(git zsh-autosuggestions zsh-syntax-highlighting)' \
+              ~/.zshrc
